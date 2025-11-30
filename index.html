@@ -14,7 +14,7 @@
     :root {
       --bg-dark: #000000;
       --bg-panel: #121212;
-      --primary: #1DB954; /* Spotify Green */
+      --primary: #1DB954; 
       --primary-hover: #1ed760;
       --primary-glow: rgba(29, 185, 84, 0.5);
       --text-main: #FFFFFF;
@@ -65,19 +65,17 @@
     .btn-main { padding: 12px 28px; background: var(--primary); border: none; color: #000; font-weight: 800; border-radius: 8px; cursor: pointer; transition: 0.2s; }
     .btn-main:hover { background: var(--primary-hover); transform: scale(1.02); }
 
-    /* REAL DASHBOARD STYLES */
     .dashboard-panel { display: none; background: #111; border: 1px solid var(--primary); padding: 25px; border-radius: 16px; animation: slideUp 0.5s ease; box-shadow: 0 0 40px var(--primary-glow); width: 100%; }
     .dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 15px; }
     .user-xp { font-size: 32px; font-weight: 800; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); }
     .user-rank { font-size: 14px; color: #888; margin-top: 5px; }
-    
     .ref-box { background: #000; padding: 15px; border-radius: 8px; border: 1px dashed #555; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
     .ref-link { font-family: monospace; font-size: 14px; color: var(--primary); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px; }
     .copy-btn { background: #333; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 700; transition: 0.2s; }
     .copy-btn:hover { background: var(--primary); color: #000; }
 
     .quest-list { display: flex; flex-direction: column; gap: 12px; }
-    .quest-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; transition: 0.2s; border: 1px solid transparent; }
+    .quest-item { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; transition: 0.2s; border: 1px solid transparent; row-gap: 10px; }
     .quest-item:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
     .q-info { display: flex; flex-direction: column; gap: 4px; }
     .q-title { font-weight: 700; color: #fff; font-size: 15px; }
@@ -85,7 +83,11 @@
     .q-btn { background: transparent; border: 1px solid var(--border); color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.2s; }
     .q-btn:hover { border-color: var(--primary); color: var(--primary); }
     .q-btn.claimed { background: var(--success); color: #000; border: none; cursor: default; }
-
+    
+    /* Wallet Input Specific */
+    .wallet-input-group { display: flex; width: 100%; gap: 10px; margin-top: 5px; }
+    .w-input { flex: 1; background: #000; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 6px; font-size: 13px; }
+    
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
     /* 3D Visual */
@@ -241,7 +243,7 @@
         <div class="waitlist-container">
           <form id="joinForm" class="waitlist-form">
             <input type="email" id="email" class="wl-input" placeholder="Enter your email..." required>
-            <button type="submit" class="btn-main sfx-click">Start Quests</button>
+            <button type="submit" class="btn-main sfx-click">Join & Earn XP</button>
           </form>
 
           <div id="dashboard" class="dashboard-panel">
@@ -269,14 +271,24 @@
                   <span class="q-title">Follow on X</span>
                   <span class="q-badge">⚡ 200 XP</span>
                 </div>
-                <button class="q-btn" id="btn-twitter" onclick="doTask('twitter', 'https://x.com/monadprimates')">Go</button>
+                <button class="q-btn" id="btn-twitter" onclick="promptTask('twitter', 'https://x.com/monadprimates')">Go</button>
               </div>
               <div class="quest-item">
                 <div class="q-info">
                   <span class="q-title">Join Telegram</span>
                   <span class="q-badge">⚡ 200 XP</span>
                 </div>
-                <button class="q-btn" id="btn-telegram" onclick="doTask('telegram', 'https://t.me/MonaPrime')">Go</button>
+                <button class="q-btn" id="btn-telegram" onclick="promptTask('telegram', 'https://t.me/MonaPrime')">Go</button>
+              </div>
+              <div class="quest-item">
+                <div class="q-info">
+                  <span class="q-title">Enter EVM Wallet</span>
+                  <span class="q-badge">💎 100 XP</span>
+                </div>
+                <div class="wallet-input-group" id="wallet-group">
+                  <input type="text" id="wallet-input" placeholder="0x..." class="w-input">
+                  <button class="q-btn" id="btn-wallet" onclick="submitWallet()">Submit</button>
+                </div>
               </div>
               <div class="quest-item">
                 <div class="q-info">
@@ -312,7 +324,7 @@
   <section id="leaderboard" class="lb-section">
     <div class="section-header"><span class="section-tag">Top Recruiters</span><h2 class="section-title">Leaderboard</h2></div>
     <div class="leaderboard-box">
-      <table class="lb-table">
+      <table class="lb-table" id="lbTable">
         <thead><tr><th>Rank</th><th>User</th><th style="text-align:right;">XP</th></tr></thead>
         <tbody id="lbBody"><tr><td colspan="3" style="text-align:center; padding:20px; color:#555;">Loading live data...</td></tr></tbody>
       </table>
@@ -499,18 +511,23 @@
       }
     });
 
-    // Quests
-    async function doTask(taskID, url) {
+    // Quests: Ask for Username
+    async function promptTask(taskID, url) {
       const btn = document.getElementById(`btn-${taskID}`);
       if(btn.classList.contains('claimed')) return;
+
+      const username = prompt("Lütfen görevi kontrol etmemiz için kullanıcı adınızı girin (Örn: @kullanici):");
+      if(!username) return; // İptal ederse dur
+
       window.open(url, '_blank');
       btn.innerText = "Verifying...";
+      
       setTimeout(async () => {
         try {
           const res = await fetch('/api/task', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ email: currentUserEmail, taskID })
+            body: JSON.stringify({ email: currentUserEmail, taskID, data: username })
           });
           const data = await res.json();
           if(data.success) {
@@ -520,6 +537,35 @@
           }
         } catch(e) { console.error(e); }
       }, 4000);
+    }
+
+    // Wallet Task
+    async function submitWallet() {
+      const btn = document.getElementById('btn-wallet');
+      const input = document.getElementById('wallet-input');
+      const address = input.value;
+
+      if(!address.startsWith('0x') || address.length < 40) {
+        alert("Please enter a valid EVM address.");
+        return;
+      }
+
+      btn.innerText = "Saving...";
+      try {
+        const res = await fetch('/api/task', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ email: currentUserEmail, taskID: 'wallet', data: address })
+        });
+        const data = await res.json();
+        if(data.success) {
+          document.getElementById('displayXP').innerText = `${data.newXP} XP`;
+          btn.innerText = "SAVED";
+          btn.classList.add('claimed');
+          input.disabled = true;
+          loadLeaderboard();
+        }
+      } catch(e) { console.error(e); }
     }
 
     function markTaskDone(btnID) {
