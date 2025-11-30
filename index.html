@@ -14,7 +14,7 @@
     :root {
       --bg-dark: #000000;
       --bg-panel: #121212;
-      --primary: #1DB954; 
+      --primary: #1DB954; /* Spotify Green */
       --primary-hover: #1ed760;
       --primary-glow: rgba(29, 185, 84, 0.5);
       --text-main: #FFFFFF;
@@ -84,7 +84,6 @@
     .q-btn:hover { border-color: var(--primary); color: var(--primary); }
     .q-btn.claimed { background: var(--success); color: #000; border: none; cursor: default; }
     
-    /* Wallet Input Specific */
     .wallet-input-group { display: flex; width: 100%; gap: 10px; margin-top: 5px; }
     .w-input { flex: 1; background: #000; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 6px; font-size: 13px; }
     
@@ -451,17 +450,17 @@
     function draw(){ ctx.clearRect(0,0,w,h); for(let i=1;i<prices.length;i++){ let o=prices[i-1],c=prices[i],x=i*10,g=c<o; ctx.fillStyle=g?'#1DB954':'#E91429'; ctx.fillRect(x,Math.min(o,c),6,Math.abs(o-c)||1); } upd(); requestAnimationFrame(draw); }
     window.addEventListener('resize',init); init(); draw();
 
-    /* --- BACKEND LOGIC --- */
+    /* --- REAL BACKEND LOGIC --- */
     let currentUserEmail = null;
 
-    // Load Leaderboard
+    // 1. Load Leaderboard
     async function loadLeaderboard() {
       try {
         const res = await fetch('/api/leaderboard');
         const data = await res.json();
         const tbody = document.getElementById('lbBody');
         tbody.innerHTML = '';
-        if(data.length === 0) { tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#555;">No data yet.</td></tr>'; return; }
+        if(data.length === 0) { tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#555;">No data yet. Be the first!</td></tr>'; return; }
         data.forEach((u, i) => {
           let color = i===0 ? 'color:#FFD700' : '#fff';
           tbody.innerHTML += `<tr><td style="${color};font-weight:800;">#${i+1}</td><td>${u.name}</td><td style="text-align:right;color:#1DB954;">${u.xp} XP</td></tr>`;
@@ -470,7 +469,7 @@
     }
     loadLeaderboard();
 
-    // Join
+    // 2. Join System
     const form = document.getElementById('joinForm');
     form.addEventListener('submit', async(e) => {
       e.preventDefault();
@@ -499,25 +498,26 @@
           
           if(data.tasks?.twitter) markTaskDone('btn-twitter');
           if(data.tasks?.telegram) markTaskDone('btn-telegram');
+          if(data.tasks?.wallet) markTaskDone('btn-wallet');
 
           loadLeaderboard();
         } else {
           alert("Error: " + data.error);
         }
       } catch (err) {
-        alert("API Error: Ensure backend is deployed on Vercel.");
+        alert("API Error: Please verify api/join.js is deployed.");
       } finally {
         btn.innerText = "Join & Earn XP";
       }
     });
 
-    // Quests: Ask for Username
+    // 3. Quests: Ask for Username
     async function promptTask(taskID, url) {
       const btn = document.getElementById(`btn-${taskID}`);
       if(btn.classList.contains('claimed')) return;
 
-      const username = prompt("Lütfen görevi kontrol etmemiz için kullanıcı adınızı girin (Örn: @kullanici):");
-      if(!username) return; // İptal ederse dur
+      const username = prompt("Please enter your username to verify (e.g. @username):");
+      if(!username) return; 
 
       window.open(url, '_blank');
       btn.innerText = "Verifying...";
@@ -539,7 +539,7 @@
       }, 4000);
     }
 
-    // Wallet Task
+    // 4. Wallet Task
     async function submitWallet() {
       const btn = document.getElementById('btn-wallet');
       const input = document.getElementById('wallet-input');
