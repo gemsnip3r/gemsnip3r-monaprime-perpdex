@@ -2,1178 +2,449 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>FyreXPrime — School of Arcane Apes</title>
-
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>School of Sorcery: FyreX Prime</title>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
-
-  <!-- Preload critical assets -->
-  <link rel="preload" as="image" href="assets/bg-sky.png">
-  <link rel="preload" as="image" href="assets/bg-castle.png">
-  <link rel="preload" as="image" href="assets/fog-back.png">
-  <link rel="preload" as="image" href="assets/fog-mid.png">
-  <link rel="preload" as="image" href="assets/fog-front.png">
-  <link rel="preload" as="image" href="assets/foreground-apes.png">
-  <link rel="preload" as="image" href="assets/portal-ring.png">
-  <link rel="preload" as="image" href="assets/portal-inner-glow.png">
-  <link rel="preload" as="image" href="assets/portal-flash.png">
-  <link rel="preload" as="image" href="assets/magic-sparks.png">
-  <link rel="preload" as="image" href="assets/rune-glyphs.png">
-  <link rel="preload" as="video" href="assets/wizard-ape.mp4" type="video/mp4">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    :root{
-      --bg:#05010a;
-      --gold:#ffb000;
-      --gold2:#caa45c;
-      --violet:#9d4edd;
-      --aqua:#39ffcc;
-      --ease:cubic-bezier(.2,.9,.1,1);
-      --font-title:"Cinzel",serif;
-      --font-body:"IM Fell English",serif;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      background:var(--bg);
-      color:#fff;
-      font-family:var(--font-body);
-      overflow-x:hidden;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+    :root {
+      --void: #050208; /* Biraz daha açık siyah, assetler görünsün diye */
+      --neon-purple: #b026ff;
+      --witch-green: #00ff9d;
+      --blood-red: #ff0055;
+      --gold: #FFD700;
+      
+      --font-title: "Cinzel", serif;
+      --font-body: "Outfit", sans-serif;
+      
+      --glass: rgba(10, 5, 20, 0.85);
+      --glass-border: rgba(176, 38, 255, 0.4);
     }
 
-    /* ---------- LOADER ---------- */
-    .loader{
-      position:fixed; inset:0; z-index:5000;
-      display:grid; place-items:center;
-      background:
-        radial-gradient(900px 560px at 50% 20%, rgba(255,176,0,.13), transparent 55%),
-        radial-gradient(900px 560px at 70% 75%, rgba(57,255,204,.09), transparent 55%),
-        rgba(5,1,10,.94);
-      backdrop-filter: blur(14px);
-      transition:.18s var(--ease);
-    }
-    .loader.hide{ opacity:0; pointer-events:none; }
-    .loaderBox{
-      border:1px solid rgba(255,176,0,.40);
-      background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(10,5,18,.20));
-      border-radius:22px;
-      padding:18px 18px;
-      text-align:center;
-      width:min(420px, 92vw);
-      box-shadow: 0 40px 160px rgba(0,0,0,.75);
-      position:relative;
-      overflow:hidden;
-    }
-    .loaderTitle{
-      font-family:var(--font-title);
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      font-size:12px;
-      margin-bottom:10px;
-      opacity:.92;
-    }
-    .loaderSub{
-      margin-top:8px;
-      opacity:.75;
-      letter-spacing:.10em;
-      text-transform:uppercase;
-      font-size:11px;
-    }
-    .loaderBar{
-      height:10px; border-radius:999px;
-      background: rgba(255,255,255,.08);
-      overflow:hidden;
-      border:1px solid rgba(255,255,255,.10);
-    }
-    .loaderBar i{
-      display:block; height:100%; width:0%;
-      background: linear-gradient(90deg, rgba(255,176,0,.95), rgba(57,255,204,.75), rgba(157,78,221,.55));
-      transition:.10s linear;
-      box-shadow: 0 0 30px rgba(255,176,0,.20);
+    * { box-sizing: border-box; }
+    
+    html, body {
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      background: var(--void); color: #e0e0e0;
+      font-family: var(--font-body);
+      overflow: hidden; /* Scroll yok, teleport var */
     }
 
-    /* ---------- 2D STAGE ---------- */
-    .stage{
-      position:fixed; inset:0;
-      z-index:-10;
-      overflow:hidden;
-      background:
-        radial-gradient(1200px 700px at 50% 10%, rgba(157,78,221,.10), transparent 60%),
-        radial-gradient(900px 600px at 70% 30%, rgba(57,255,204,.06), transparent 55%),
-        linear-gradient(#04010a,#03000a);
+    /* --- 1. BACKGROUND ASSETS (FIXED LAYER) --- */
+    /* Z-Index ayarı kritik: -10 yaparak en arkaya atıyoruz */
+    .stage {
+      position: fixed; inset: 0; z-index: -10; 
+      width: 100vw; height: 100vh;
+      overflow: hidden; background: #000;
     }
-    .layer{
-      position:absolute; inset:-4%;
-      background-repeat:no-repeat;
-      background-position:center bottom;
-      background-size:cover;
-      transform: translate3d(0,0,0);
-      will-change: transform;
-      pointer-events:none;
-      filter:saturate(1.06) contrast(1.06);
+    .layer {
+      position: absolute; inset: -5%; /* Parallax payı */
+      background-size: cover; background-position: center bottom;
+      will-change: transform; pointer-events: none;
     }
-    .sky{ background-image:url("assets/bg-sky.png"); z-index:1; }
-    .castle{ background-image:url("assets/bg-castle.png"); z-index:3; }
-    .fog-back{ background-image:url("assets/fog-back.png"); z-index:4; opacity:.66; mix-blend-mode:screen; }
-    .fog-mid{ background-image:url("assets/fog-mid.png"); z-index:5; opacity:.78; mix-blend-mode:screen; }
-    .fog-front{ background-image:url("assets/fog-front.png"); z-index:7; opacity:.86; mix-blend-mode:screen; }
-    .apes{
-      background-image:url("assets/foreground-apes.png");
-      z-index:9;
-      opacity:1;
-      filter:contrast(1.12) saturate(1.12) drop-shadow(0 40px 120px rgba(0,0,0,.45));
+    
+    /* ASSET PATHLERİ - Klasörde bu isimlerde olduklarına emin ol */
+    .sky { background-image: url("assets/bg-sky.png"); z-index: 1; opacity: 0.8; }
+    .castle { background-image: url("assets/bg-castle.png"); z-index: 2; }
+    .fog { background-image: url("assets/fog-back.png"); mix-blend-mode: screen; opacity: 0.4; z-index: 3; }
+    .apes { background-image: url("assets/foreground-apes.png"); z-index: 5; }
+
+    /* Sis Animasyonu */
+    .fog-move { animation: drift 60s linear infinite; }
+    @keyframes drift { 0% { transform: translateX(0); } 50% { transform: translateX(-50px); } 100% { transform: translateX(0); } }
+
+    /* --- 2. PORTAL FX --- */
+    .portal-overlay {
+      position: fixed; inset: 0; z-index: 9000; pointer-events: none; display: none;
+    }
+    .portal-overlay.active { display: block; }
+    .portal-center {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: min(700px, 90vw); aspect-ratio: 1/1;
+      display: grid; place-items: center;
+    }
+    .p-img { position: absolute; width: 100%; height: 100%; object-fit: contain; }
+    /* Asset Pathleri */
+    .p-ring { background-image: url('assets/portal-ring.png'); } 
+    /* Resim yüklenmezse CSS şekil fallback'i */
+    .p-ring:empty { width:100%; height:100%; background:radial-gradient(transparent 60%, var(--neon-purple) 65%, transparent 70%); }
+    
+    .p-ring-anim { opacity: 0; transform: scale(0.5) rotate(-45deg); filter: drop-shadow(0 0 30px var(--neon-purple)); }
+    .p-glow-anim { opacity: 0; transform: scale(0.5); mix-blend-mode: screen; }
+    .p-flash-anim { opacity: 0; transform: scale(0.2); mix-blend-mode: add; }
+
+    .portal-overlay.active .p-ring-anim { animation: ringIn 0.8s ease-out forwards; }
+    .portal-overlay.active .p-glow-anim { animation: glowIn 0.8s ease-out forwards; }
+    .portal-overlay.active .p-flash-anim { animation: flashIn 0.6s ease-out forwards; }
+
+    @keyframes ringIn { 0%{opacity:0;transform:scale(0.5) rotate(-45deg)} 50%{opacity:1;transform:scale(1) rotate(0deg)} 100%{opacity:0;transform:scale(1.5) rotate(45deg)} }
+    @keyframes glowIn { 0%{opacity:0;transform:scale(0.5)} 50%{opacity:1;transform:scale(1.1)} 100%{opacity:0;transform:scale(1.3)} }
+    @keyframes flashIn { 0%{opacity:0;transform:scale(0.2)} 40%{opacity:1;transform:scale(1.2)} 100%{opacity:0;transform:scale(2)} }
+
+    /* --- 3. NAV --- */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.95), transparent);
+    }
+    .brand { font-family: var(--font-title); font-size: 24px; color: #fff; text-shadow: 0 0 15px var(--neon-purple); text-decoration: none; font-weight: 700; cursor: pointer; }
+    .brand span { color: var(--witch-green); font-size: 0.8em; }
+
+    .nav-items { display: flex; gap: 30px; }
+    .nav-btn {
+      background: none; border: none; color: #aaa; font-family: var(--font-title); font-size: 14px;
+      cursor: pointer; transition: 0.3s; position: relative; letter-spacing: 0.1em;
+    }
+    .nav-btn:hover, .nav-btn.active-link { color: var(--witch-green); text-shadow: 0 0 10px var(--witch-green); }
+    .nav-btn.active-link::after {
+      content: ''; position: absolute; bottom: -5px; left: 0; width: 100%; height: 2px;
+      background: var(--witch-green); box-shadow: 0 0 10px var(--witch-green);
     }
 
-    /* FAST drift */
-    @keyframes drift { 0%{transform:translate3d(0,0,0)} 50%{transform:translate3d(-1.1%,0,0)} 100%{transform:translate3d(0,0,0)} }
-    .fog-back{ animation: drift 6.8s var(--ease) infinite; }
-    .fog-mid{ animation: drift 7.6s var(--ease) infinite; }
-    .fog-front{ animation: drift 8.6s var(--ease) infinite; }
-    body:not(.ready) .fog-back, body:not(.ready) .fog-mid, body:not(.ready) .fog-front{ animation:none!important; }
+    /* --- 4. MAIN & SECTIONS (Teleport Logic) --- */
+    main { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 10; }
+    section {
+      position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transform: scale(0.9) translateY(20px); transition: 0.5s ease;
+      padding: 80px 20px;
+    }
+    section.active-section { opacity: 1; pointer-events: auto; transform: scale(1) translateY(0); z-index: 20; }
+    
+    .content-wrapper {
+      max-height: 85vh; overflow-y: auto; width: 100%; max-width: 1100px; padding: 20px;
+      display: flex; flex-direction: column; align-items: center; scrollbar-width: none;
+    }
+    .content-wrapper::-webkit-scrollbar { display: none; }
 
-    /* ---------- NAV ---------- */
-    header.nav{
-      position:fixed; top:0; left:0; right:0;
-      z-index:60;
-      padding:16px 18px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      background: linear-gradient(to bottom, rgba(5,1,10,.88), rgba(5,1,10,.35), transparent);
-      pointer-events:none;
+    /* --- 5. UI COMPONENTS --- */
+    h1 { font-family: var(--font-title); font-size: clamp(50px, 10vw, 120px); margin: 0; line-height: 0.9; text-transform: uppercase; color: #fff; text-shadow: 0 0 40px rgba(176, 38, 255, 0.5); text-align: center; }
+    h2 { font-family: var(--font-title); font-size: 36px; text-transform: uppercase; color: #fff; margin-bottom: 30px; text-align: center; }
+    h2 span { color: var(--witch-green); }
+    
+    .glass-panel {
+      background: var(--glass); border: 1px solid var(--glass-border);
+      border-radius: 20px; padding: 40px; width: 100%;
+      backdrop-filter: blur(10px); box-shadow: 0 20px 50px rgba(0,0,0,0.8);
     }
-    .brand{
-      pointer-events:auto;
-      display:flex; align-items:center; gap:10px;
-      text-decoration:none; color:#fff;
-      user-select:none;
+    .btn-spell {
+      padding: 14px 32px; background: rgba(36, 0, 70, 0.6);
+      border: 1px solid var(--neon-purple); color: var(--neon-purple);
+      font-family: var(--font-title); font-weight: 700; letter-spacing: 0.1em;
+      cursor: pointer; transition: 0.3s; text-transform: uppercase; font-size: 14px;
     }
-    .sigil{
-      width:40px;height:40px;border-radius:50%;
-      border:1px solid rgba(255,176,0,.60);
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255,176,0,.98), rgba(157,78,221,.18) 52%, rgba(0,0,0,.25) 78%);
-      box-shadow: 0 0 22px rgba(255,176,0,.18), 0 0 48px rgba(57,255,204,.08);
-    }
-    .brand .t1{
-      font-family:var(--font-title);
-      font-size:14px;
-      letter-spacing:.16em;
-      text-transform:uppercase;
-      line-height:1.1;
-    }
-    .brand .t2{
-      font-size:12px;
-      opacity:.8;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-    }
-    .navRight{ pointer-events:auto; display:flex; align-items:center; gap:10px; }
+    .btn-spell:hover { background: var(--neon-purple); color: #000; box-shadow: 0 0 30px var(--neon-purple); }
 
-    .btn{
-      padding:10px 14px;
-      border-radius:14px;
-      border:1px solid rgba(255,176,0,.55);
-      background: rgba(10,5,18,.38);
-      color:#fff;
-      font-family:var(--font-title);
-      font-weight:800;
-      letter-spacing:.10em;
-      cursor:pointer;
-      transition:.14s var(--ease);
-      box-shadow: 0 14px 60px rgba(0,0,0,.45);
-      backdrop-filter: blur(10px);
-      -webkit-tap-highlight-color: transparent;
+    /* PerpDEX Card */
+    .perpdex-card {
+      background: linear-gradient(135deg, rgba(20, 241, 149, 0.1), rgba(0,0,0,0.95));
+      border: 1px solid var(--witch-green); border-radius: 16px; padding: 40px;
+      text-align: center; position: relative; overflow: hidden; box-shadow: 0 0 40px rgba(20, 241, 149, 0.15); margin-bottom: 30px;
     }
-    .btn:hover{ transform: translateY(-1px); border-color: rgba(255,176,0,.95); }
+    .perpdex-badge { display: inline-block; background: var(--witch-green); color: #000; font-weight: 900; padding: 5px 10px; font-size: 12px; border-radius: 4px; margin-bottom: 15px; letter-spacing: 0.1em; }
 
-    .knocker{ position:relative; padding-left:48px; overflow:hidden; }
-    .knocker:before{
-      content:""; position:absolute; left:14px; top:50%;
-      width:26px; height:26px; transform: translateY(-50%);
-      border-radius:10px;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255,176,0,.95), rgba(255,176,0,.25) 55%, rgba(0,0,0,.25) 72%),
-        linear-gradient(135deg, rgba(57,255,204,.10), transparent);
-      box-shadow: 0 0 22px rgba(255,176,0,.18);
-      border:1px solid rgba(255,176,0,.55);
+    /* Pillars */
+    .pillars-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; width: 100%; }
+    .pillar {
+      background: rgba(10, 5, 20, 0.8); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px; padding: 30px 20px; text-align: center; transition: 0.3s;
     }
-    .knocker small{ display:block; font-family:var(--font-body); letter-spacing:.06em; opacity:.78; margin-top:2px; font-weight:400; }
-    .knockHotspot{ position:absolute; left:10px; top:50%; width:40px; height:40px; transform:translateY(-50%); border-radius:14px; cursor:pointer; z-index:2; }
-    .knockHotspot:after{
-      content:""; position:absolute; inset:-6px; border-radius:18px;
-      background: radial-gradient(circle, rgba(255,176,0,.40), transparent 65%);
-      opacity:0; transition:.14s var(--ease);
-    }
-    .knocker:hover .knockHotspot:after{ opacity:1; }
-
-    /* ---------- LAYOUT ---------- */
-    main{ position:relative; z-index:10; }
-    section{ min-height:100vh; display:flex; align-items:center; padding:110px 18px 70px; }
-    .wrap{ width:min(1200px,100%); margin:0 auto; }
-
-    .heroGrid{ display:grid; grid-template-columns: 1.15fr .85fr; gap:26px; align-items:center; }
-    @media(max-width:980px){ .heroGrid{ grid-template-columns:1fr; } }
-
-    .badge{
-      display:inline-flex; align-items:center; gap:10px;
-      padding:8px 12px; border-radius:999px;
-      background: rgba(0,0,0,.28);
-      border:1px solid rgba(255,176,0,.28);
-      backdrop-filter: blur(10px);
-      font-family:var(--font-title);
-      letter-spacing:.20em;
-      text-transform:uppercase;
-      font-size:11px;
-    }
-    .badge i{
-      width:8px;height:8px;border-radius:50%;
-      background:var(--gold);
-      box-shadow: 0 0 16px rgba(255,176,0,.55);
-      display:inline-block;
-      animation: dotPulse 700ms var(--ease) infinite;
-    }
-    @keyframes dotPulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.25);opacity:1}}
-
-    h1{
-      font-family:var(--font-title);
-      text-transform:uppercase;
-      letter-spacing:.06em;
-      line-height:.92;
-      margin:14px 0 10px;
-      font-size: clamp(44px, 6vw, 76px);
-      text-shadow: 0 18px 90px rgba(0,0,0,.65);
-    }
-    h1 span{ color:var(--gold); text-shadow: 0 0 28px rgba(255,176,0,.25); }
-
-    .lead{
-      max-width:74ch;
-      font-size:18px;
-      line-height:1.6;
-      color: rgba(255,255,255,.90);
-      border-left: 3px solid rgba(255,176,0,.60);
-      padding-left:14px;
-      margin: 10px 0 20px;
-      text-shadow: 0 12px 70px rgba(0,0,0,.55);
+    .pillar:hover { transform: translateY(-10px); border-color: var(--neon-purple); }
+    .pillar-icon {
+      width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 20px; display: grid; place-items: center; font-size: 24px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #fff;
     }
 
-    .ctaRow{ display:flex; gap:12px; flex-wrap:wrap; }
-    .cta{
-      padding:12px 16px;
-      border-radius:16px;
-      border:1px solid rgba(255,176,0,.55);
-      background: rgba(10,5,18,.42);
-      backdrop-filter: blur(10px);
-      font-family:var(--font-title);
-      font-weight:800;
-      letter-spacing:.10em;
-      cursor:pointer;
-      transition:.14s var(--ease);
-      color:#fff;
-      -webkit-tap-highlight-color: transparent;
-      box-shadow: 0 18px 80px rgba(0,0,0,.40);
+    /* Mute Button (Ses Kontrol) */
+    .mute-btn {
+      position: fixed; bottom: 20px; right: 20px; z-index: 500; pointer-events: auto;
+      width: 50px; height: 50px; border-radius: 50%;
+      background: #000; border: 2px solid var(--witch-green); color: var(--witch-green);
+      display: grid; place-items: center; cursor: pointer;
+      box-shadow: 0 0 20px rgba(0,255,157,0.4);
+      animation: pulseBtn 2s infinite;
     }
-    .cta.primary{
-      background: linear-gradient(180deg, rgba(255,176,0,.28), rgba(10,5,18,.30));
-      border-color: rgba(255,176,0,.90);
-    }
-    .cta:hover{ transform: translateY(-2px); border-color: rgba(255,176,0,.95); }
+    @keyframes pulseBtn { 0%{transform:scale(1);} 50%{transform:scale(1.1);} 100%{transform:scale(1);} }
 
-    /* ---------- HERO VIDEO ---------- */
-    .card{
-      border-radius:22px;
-      overflow:hidden;
-      border:1px solid rgba(255,176,0,.30);
-      background: rgba(0,0,0,.25);
-      box-shadow: 0 40px 160px rgba(0,0,0,.70);
-      backdrop-filter: blur(10px);
-      position:relative;
-    }
-    .heroVideo{
-      width:100%;
-      height:min(520px, 62vh);
-      display:block;
-      object-fit:cover;
-      background:#0b0712;
-      filter: contrast(1.08) saturate(1.08);
-    }
-    .staffGlow{
-      position:absolute; inset:0; pointer-events:none;
-      background:
-        radial-gradient(320px 220px at 72% 35%, rgba(57,255,204,.11), transparent 65%),
-        radial-gradient(300px 240px at 35% 60%, rgba(157,78,221,.12), transparent 70%),
-        radial-gradient(720px 360px at 50% 100%, rgba(255,176,0,.08), transparent 60%);
-      mix-blend-mode:screen;
-      animation: staffPulse 860ms var(--ease) infinite;
-      opacity:.95;
-    }
-    @keyframes staffPulse{ 0%,100%{ transform:scale(1); opacity:.78 } 50%{ transform:scale(1.02); opacity:1 } }
-    .cardFooter{
-      position:absolute; left:0; right:0; bottom:0;
-      padding:14px 16px;
-      background: linear-gradient(to top, rgba(0,0,0,.86), transparent);
-      display:flex; justify-content:space-between; align-items:flex-end;
-      gap:12px;
-    }
-    .cardFooter .lbl{
-      font-family:var(--font-title);
-      letter-spacing:.16em;
-      text-transform:uppercase;
-      font-size:13px;
-    }
-    .glowDot{
-      width:10px;height:10px;border-radius:50%;
-      background:var(--aqua);
-      box-shadow: 0 0 28px rgba(57,255,204,.65);
-      animation: pulse 820ms var(--ease) infinite;
-    }
-    @keyframes pulse{ 0%,100%{ transform:scale(1); opacity:.85 } 50%{ transform:scale(1.35); opacity:1 } }
-
-    /* ---------- SECTION TITLES ---------- */
-    .sectionTitle{
-      font-family:var(--font-title);
-      text-transform:uppercase;
-      letter-spacing:.10em;
-      font-size: clamp(34px,4.6vw,56px);
-      margin:0 0 10px;
-      text-shadow: 0 18px 90px rgba(0,0,0,.65);
-    }
-    .sectionTitle span{ color:var(--gold); }
-
-    /* ---------- FLIP CARDS (ONE WORD + EMOJI) ---------- */
-    .flipGrid{
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0,1fr));
-      gap:12px;
-      margin-top:18px;
-      perspective: 1200px;
-    }
-    @media(max-width:900px){ .flipGrid{ grid-template-columns:1fr; } }
-
-    .flipCard{
-      position:relative;
-      height:170px;
-      border-radius:22px;
-      transform-style:preserve-3d;
-      transition: transform .20s linear;
-      border:1px solid rgba(255,176,0,.30);
-      background: rgba(0,0,0,.18);
-      box-shadow: 0 30px 120px rgba(0,0,0,.55);
-      overflow:hidden;
-    }
-    .flipCard:hover{ transform: rotateY(180deg); }
-
-    .flipFace{
-      position:absolute; inset:0;
-      border-radius:22px;
-      backface-visibility:hidden;
-      display:grid;
-      place-items:center;
-      padding:18px;
-      background:
-        radial-gradient(720px 260px at 25% 20%, rgba(255,176,0,.12), transparent 60%),
-        radial-gradient(720px 260px at 75% 80%, rgba(57,255,204,.08), transparent 60%),
-        linear-gradient(180deg, rgba(0,0,0,.18), rgba(10,5,18,.25));
-    }
-    .flipBack{
-      transform: rotateY(180deg);
-      background:
-        radial-gradient(720px 260px at 25% 20%, rgba(157,78,221,.14), transparent 60%),
-        radial-gradient(720px 260px at 75% 80%, rgba(255,176,0,.10), transparent 60%),
-        linear-gradient(180deg, rgba(0,0,0,.20), rgba(10,5,18,.28));
-    }
-    .flipWord{
-      font-family:var(--font-title);
-      letter-spacing:.20em;
-      text-transform:uppercase;
-      font-size:14px;
-      opacity:.98;
-      display:flex;
-      gap:12px;
-      align-items:center;
-      user-select:none;
-    }
-    .emoji{
-      display:inline-block;
-      font-size:18px;
-      filter: drop-shadow(0 0 14px rgba(255,176,0,.18));
-      animation: emojiFloat 420ms linear infinite;
-      transform-origin: 50% 50%;
-    }
-    @keyframes emojiFloat{
-      0%,100%{ transform: translateY(0) rotate(0deg) scale(1); opacity:.95; }
-      50%{ transform: translateY(-3px) rotate(8deg) scale(1.06); opacity:1; }
-    }
-
-    /* ---------- NFT STRIP ---------- */
-    .nftStrip{
-      display:flex; gap:12px; overflow:auto;
-      padding:6px 2px 10px;
-      scroll-snap-type:x mandatory;
-      -webkit-overflow-scrolling: touch;
-    }
-    .nftStrip::-webkit-scrollbar{ height:8px; }
-    .nftStrip::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.12); border-radius:999px; }
-    .nftCard{
-      flex:0 0 auto;
-      width:min(290px, 80vw);
-      scroll-snap-align:start;
-      border-radius:22px;
-      overflow:hidden;
-      border:1px solid rgba(255,176,0,.28);
-      background: rgba(0,0,0,.20);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 30px 120px rgba(0,0,0,.55);
-    }
-    .nftImg{
-      width:100%;
-      height:175px;
-      display:block;
-      object-fit:cover;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255,176,0,.12), rgba(57,255,204,.08) 48%, rgba(0,0,0,.25));
-    }
-    .nftMeta{ padding:12px 12px 14px; }
-    .nftName{
-      font-family:var(--font-title);
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      font-size:13px;
-      margin:0 0 6px;
-    }
-    .pillRow{ display:flex; gap:8px; flex-wrap:wrap; }
-    .pill{
-      font-family:var(--font-title);
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      font-size:11px;
-      padding:7px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      opacity:.94;
-    }
-
-    /* ---------- ROADMAP + SOCIAL ---------- */
-    .grid3{
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0,1fr));
-      gap:12px;
-      margin-top:18px;
-    }
-    @media(max-width:900px){ .grid3{ grid-template-columns:1fr; } }
-    .box{
-      border-radius:22px;
-      border:1px solid rgba(255,176,0,.28);
-      background: rgba(0,0,0,.20);
-      backdrop-filter: blur(10px);
-      padding:14px;
-      box-shadow: 0 30px 120px rgba(0,0,0,.55);
-      position:relative;
-      overflow:hidden;
-    }
-    .box h4{
-      margin:0 0 6px;
-      font-family:var(--font-title);
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      font-size:13px;
-    }
-    .box ul{ margin:0; padding-left:18px; opacity:.88; line-height:1.65; }
-
-    /* ---------- DOOR MENU ---------- */
-    .doorMenu{ position:fixed; inset:0; z-index:200; display:none; }
-    .doorMenu.open{ display:block; }
-    .doorMenu .backdrop{ position:absolute; inset:0; background: rgba(0,0,0,.62); backdrop-filter: blur(10px); }
-
-    .door{
-      position:absolute; left:50%; top:50%;
-      transform: translate(-50%,-50%) scale(.99);
-      width:min(640px, 94vw);
-      border-radius:24px;
-      background:
-        radial-gradient(900px 560px at 50% 20%, rgba(255,176,0,.14), transparent 55%),
-        radial-gradient(900px 560px at 70% 75%, rgba(57,255,204,.10), transparent 55%),
-        linear-gradient(180deg, rgba(25,12,40,.92), rgba(10,5,18,.92));
-      border:1px solid rgba(255,176,0,.42);
-      box-shadow: 0 60px 220px rgba(0,0,0,.82);
-      overflow:hidden;
-      opacity:0;
-      transition:.12s linear;
-      position:relative;
-    }
-    .doorMenu.open .door{ opacity:1; transform:translate(-50%,-50%) scale(1); }
-
-    .doorHeader{
-      padding:18px 18px 12px;
-      display:flex; justify-content:space-between; align-items:center;
-      border-bottom:1px solid rgba(255,255,255,.08);
-      position:relative;
-      z-index:3;
-    }
-    .doorHeader h3{
-      margin:0;
-      font-family:var(--font-title);
-      letter-spacing:.16em;
-      text-transform:uppercase;
-      font-size:14px;
-      color:rgba(255,255,255,.92);
-    }
-    .closeX{
-      width:40px;height:40px;border-radius:14px;
-      border:1px solid rgba(255,176,0,.35);
-      background: rgba(0,0,0,.22);
-      cursor:pointer;
-      color:#fff;
-      font-family:var(--font-title);
-      font-weight:800;
-      -webkit-tap-highlight-color: transparent;
-      position:relative;
-      z-index:3;
-    }
-    .menuList{ padding:14px; display:grid; gap:10px; position:relative; z-index:3; }
-    .menuItem{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:14px 14px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
-      cursor:pointer;
-      transition:.12s linear;
-      position:relative;
-      overflow:hidden;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .menuItem:hover{ transform: translateY(-2px); border-color: rgba(255,176,0,.55); }
-    .menuItem strong{
-      font-family:var(--font-title);
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      font-size:13px;
-    }
-    .menuItem em{ opacity:.78; font-style:normal; letter-spacing:.06em; }
-    .sig{
-      width:38px;height:38px;border-radius:14px;
-      border:1px solid rgba(255,176,0,.25);
-      display:grid; place-items:center;
-      background: radial-gradient(circle at 30% 30%, rgba(157,78,221,.35), rgba(0,0,0,.15));
-      box-shadow: 0 0 0 2px rgba(255,176,0,.06);
-      user-select:none;
-    }
-
-    /* Rune overlay: low opacity, no big visible letters */
-    .runeOverlayImg{
-      position:absolute;
-      left:50%; top:50%;
-      transform: translate(-50%,-50%) scale(1);
-      width:min(780px, 110vw);
-      opacity:0;
-      pointer-events:none;
-      mix-blend-mode:screen;
-      filter: drop-shadow(0 0 22px rgba(157,78,221,.20)) drop-shadow(0 0 28px rgba(255,176,0,.14));
-      z-index:2;
-    }
-    .doorMenu.open .runeOverlayImg{ animation: runeIn 120ms linear forwards; }
-    @keyframes runeIn{ from{opacity:0} to{opacity:.28} }
-
-    /* ---------- PORTAL FX (FAST + STAYS) ---------- */
-    .portal{ position:fixed; inset:0; z-index:999; pointer-events:none; display:none; }
-    .portal.show{ display:block; }
-    .portalCenter{
-      position:absolute;
-      left:50%; top:55%;
-      transform: translate(-50%,-50%);
-      width:min(560px, 90vw);
-      aspect-ratio:1/1;
-      display:grid; place-items:center;
-      filter: drop-shadow(0 0 34px rgba(255,176,0,.18)) drop-shadow(0 0 32px rgba(57,255,204,.10));
-    }
-    .portalRing,.portalGlow,.portalFlash{ position:absolute; width:100%; height:100%; object-fit:contain; }
-    .portalRing{ opacity:0; transform:scale(.72) rotate(-14deg); }
-    .portalGlow{ opacity:0; transform:scale(.70); mix-blend-mode:screen; }
-    .portalFlash{ opacity:0; transform:scale(.62); mix-blend-mode:screen; }
-
-    .portal.show .portalRing{ animation: ringOpen 560ms linear forwards; }
-    .portal.show .portalGlow{ animation: glowOpen 560ms linear forwards; }
-    .portal.show .portalFlash{ animation: flashOpen 420ms linear forwards; }
-
-    @keyframes ringOpen{
-      0%{ opacity:0; transform:scale(.72) rotate(-14deg); }
-      35%{ opacity:1; transform:scale(1.02) rotate(3deg); }
-      100%{ opacity:0; transform:scale(1.18) rotate(12deg); }
-    }
-    @keyframes glowOpen{
-      0%{ opacity:0; transform:scale(.70); }
-      45%{ opacity:.95; transform:scale(1.05); }
-      100%{ opacity:0; transform:scale(1.14); }
-    }
-    @keyframes flashOpen{
-      0%{ opacity:0; transform:scale(.62); }
-      30%{ opacity:1; transform:scale(1.04); }
-      100%{ opacity:0; transform:scale(1.22); }
-    }
-
-    /* Click Sparks (fast) */
-    .spark{
-      position:fixed;
-      width:150px; height:150px;
-      transform: translate(-50%,-50%) scale(.78);
-      pointer-events:none;
-      z-index:999;
-      opacity:0;
-      mix-blend-mode:screen;
-      filter: drop-shadow(0 0 18px rgba(255,176,0,.14)) drop-shadow(0 0 18px rgba(57,255,204,.10));
-      will-change: transform, opacity;
-    }
-    .spark.pop{ animation: sparkPop 260ms linear forwards; }
-    @keyframes sparkPop{
-      0%{ opacity:0; transform:translate(-50%,-50%) scale(.60) rotate(0deg); }
-      40%{ opacity:.98; transform:translate(-50%,-50%) scale(1.05) rotate(10deg); }
-      100%{ opacity:0; transform:translate(-50%,-50%) scale(1.18) rotate(20deg); }
-    }
-
-    /* Wand dot */
-    .wandDot{
-      position:fixed; width:8px;height:8px;border-radius:50%;
-      pointer-events:none; z-index:120;
-      background: radial-gradient(circle, rgba(255,255,255,.9), rgba(255,176,0,.70));
-      box-shadow: 0 0 18px rgba(255,176,0,.25);
-      opacity:0;
-      transform: translate(-50%,-50%);
-      will-change: transform, opacity;
-    }
-
-    footer{
-      position:relative; z-index:10;
-      padding:36px 18px 46px;
-      text-align:center;
-      border-top:1px solid rgba(255,255,255,.08);
-      background: rgba(0,0,0,.28);
-      backdrop-filter: blur(10px);
-    }
-    footer a{ color:#fff; text-decoration:none; margin:0 10px; font-weight:800; letter-spacing:.06em; }
-    footer a:hover{ color:var(--gold); }
-
-    @media (prefers-reduced-motion: reduce){
-      .fog-back,.fog-mid,.fog-front{ animation:none; }
-      .wandDot{ display:none; }
-      .emoji{ animation:none; }
-    }
+    /* Footer */
+    footer { position: fixed; bottom: 0; width: 100%; z-index: 100; padding: 15px; text-align: center; pointer-events: none; }
+    footer a { pointer-events: auto; color: #fff; margin: 0 10px; font-size: 18px; }
   </style>
 </head>
-
 <body>
-  <!-- LOADER -->
-  <div class="loader" id="loader">
-    <div class="loaderBox">
-      <div class="loaderTitle">FYREXPRIME • SUMMONING ASSETS</div>
-      <div class="loaderBar"><i id="loaderFill"></i></div>
-      <div class="loaderSub">PORTAL READY</div>
+
+  <div class="portal-overlay" id="portalOverlay">
+    <div class="portal-center">
+      <img src="assets/portal-ring.png" class="p-img p-ring-anim" alt="">
+      <img src="assets/portal-inner-glow.png" class="p-img p-glow-anim" alt="">
+      <img src="assets/portal-flash.png" class="p-img p-flash-anim" alt="">
     </div>
   </div>
 
-  <!-- 2D background scene -->
-  <div class="stage" aria-hidden="true">
-    <div class="layer sky"></div>
-    <div class="layer castle"></div>
-    <div class="layer fog-back"></div>
-    <div class="layer fog-mid"></div>
-    <div class="layer fog-front"></div>
-    <div class="layer apes"></div>
+  <div class="stage">
+    <div class="layer sky" data-depth="0.05"></div>
+    <div class="layer castle" data-depth="0.15"></div>
+    <div class="layer fog fog-move"></div>
+    <div class="layer apes" data-depth="0.4"></div>
   </div>
 
-  <!-- Portal FX overlay -->
-  <div class="portal" id="portal">
-    <div class="portalCenter" id="portalCenter">
-      <img class="portalRing" src="assets/portal-ring.png" alt="" />
-      <img class="portalGlow" src="assets/portal-inner-glow.png" alt="" />
-      <img class="portalFlash" src="assets/portal-flash.png" alt="" />
+  <nav>
+    <a class="brand" onclick="teleport('home')">FYREX <span>PRIME</span></a>
+    <div class="nav-items">
+      <button class="nav-btn active-link" onclick="teleport('home')">HOME</button>
+      <button class="nav-btn" onclick="teleport('summon')">SUMMON</button>
+      <button class="nav-btn" onclick="teleport('academy')">ACADEMY</button>
+      <button class="nav-btn" onclick="teleport('path')">PATH</button>
+      <button class="nav-btn" onclick="teleport('oracle')">ORACLE</button>
     </div>
-  </div>
-
-  <!-- NAV -->
-  <header class="nav">
-    <a class="brand" href="#hero" id="homeBtn">
-      <div class="sigil"></div>
-      <div>
-        <div class="t1">FYREXPRIME</div>
-        <div class="t2">SCHOOL OF ARCANE APES</div>
-      </div>
-    </a>
-
-    <div class="navRight">
-      <button class="btn" id="whitepaperBtn">WHITEPAPER</button>
-      <button class="btn knocker" id="knockBtn">
-        <span class="knockHotspot" id="knockHotspot" title="Door Knocker"></span>
-        KNOCK PORTAL
-        <small>door knocker</small>
-      </button>
-    </div>
-  </header>
-
-  <!-- DOOR MENU -->
-  <div class="doorMenu" id="doorMenu" aria-hidden="true">
-    <div class="backdrop" id="doorBackdrop"></div>
-    <img class="runeOverlayImg" src="assets/rune-glyphs.png" alt="" />
-    <div class="door" role="dialog" aria-label="Portal Menu">
-      <div class="doorHeader">
-        <h3>PORTAL MENU</h3>
-        <button class="closeX" id="closeDoor">X</button>
-      </div>
-
-      <div class="menuList">
-        <div class="menuItem" data-target="#nfts">
-          <div><strong>NFT SAMPLES</strong><br/><em>preview + cards</em></div>
-          <div class="sig">🧿</div>
-        </div>
-        <div class="menuItem" data-target="#utility">
-          <div><strong>UTILITY</strong><br/><em>holder perks</em></div>
-          <div class="sig">⚡</div>
-        </div>
-        <div class="menuItem" data-target="#roadmap">
-          <div><strong>ROADMAP</strong><br/><em>phases & gates</em></div>
-          <div class="sig">🗝️</div>
-        </div>
-        <div class="menuItem" data-target="#social">
-          <div><strong>SOCIALS</strong><br/><em>@fyrexprime</em></div>
-          <div class="sig">📣</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Wand dot -->
-  <div class="wandDot" id="wandDot"></div>
+  </nav>
 
   <main>
-    <!-- HERO -->
-    <section id="hero">
-      <div class="wrap heroGrid">
-        <div>
-          <div class="badge"><i></i> 2D TOON • FAST PORTAL • PREMIUM GLASS</div>
-          <h1>School of <span>Arcane Apes</span></h1>
-          <p class="lead">
-            Ultra-fast portal UI. Clean sections. Zero random text. All handles: <b>@fyrexprime</b>.
+    
+    <section id="home" class="active-section">
+      <div class="content-wrapper">
+        <div style="color:var(--neon-purple); letter-spacing:0.3em; font-weight:700; margin-bottom:15px; font-size:12px;">SOLANA MAINNET</div>
+        <h1>FyreX</h1>
+        <div style="margin-top:20px; padding:10px 20px; border:1px solid var(--witch-green); background:rgba(0,255,157,0.05); color:var(--witch-green); letter-spacing:0.2em; font-weight:600;">
+          SUPPLY: 2,222 • MINT LIVE
+        </div>
+        <p style="color:#aaa; max-width:500px; text-align:center; margin-top:20px;">
+          The ultimate Sorcery Academy. Home of the <b>PerpDEX</b>.
+        </p>
+        <div style="margin-top:40px;">
+          <button class="btn-spell" style="background:var(--witch-green); color:#000; border:none; box-shadow:0 0 30px rgba(0,255,157,0.5);" onclick="teleport('summon')">
+            START RITUAL
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="summon">
+      <div class="content-wrapper">
+        <div class="glass-panel" style="max-width:500px; text-align:center;">
+          <h2>The <span style="color:var(--neon-purple)">Altar</span></h2>
+          <div style="width:140px; height:140px; margin:0 auto 30px; position:relative; display:flex; align-items:center; justify-content:center;">
+            <div style="position:absolute; inset:0; border:2px dashed var(--neon-purple); border-radius:50%; animation:spin 10s linear infinite;"></div>
+            <div style="position:absolute; inset:10px; border:2px solid var(--witch-green); border-radius:50%; animation:spin 5s reverse linear infinite;"></div>
+            <i class="fa-solid fa-hand-sparkles" style="font-size:40px; color:#fff;"></i>
+          </div>
+          <div style="font-family:var(--font-title); font-size:18px; margin-bottom:20px; color:#fff;" id="mintStatus">Ready to Summon...</div>
+          <div style="display:flex; justify-content:center; gap:20px; align-items:center; margin-bottom:20px;">
+             <button class="btn-spell" onclick="adjustMint(-1)">-</button>
+             <span style="font-size:24px; font-family:var(--font-title);" id="mintCount">1</span>
+             <button class="btn-spell" onclick="adjustMint(1)">+</button>
+          </div>
+          <button class="btn-spell" style="width:100%; background:var(--witch-green); color:#000; border:none;" onclick="triggerMint()">
+            SUMMON (0.5 SOL)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="academy">
+      <div class="content-wrapper">
+        <h2>FyreX <span style="color:var(--witch-green)">Academy</span></h2>
+        
+        <div class="perpdex-card">
+          <div class="perpdex-badge">CORE UTILITY</div>
+          <h3 style="font-family:var(--font-title); font-size:32px; color:#fff; margin:10px 0;">FyreX PerpDEX</h3>
+          <p style="color:#ddd; max-width:600px; margin:0 auto 20px;">
+            A decentralized perpetual exchange built for speed on Solana.
           </p>
-          <div class="ctaRow">
-            <button class="cta primary" data-jump="#nfts">NFT SAMPLES</button>
-            <button class="cta" id="castSpellBtn">CAST SPELL</button>
-            <button class="cta" id="openMenuBtn">OPEN PORTAL MENU</button>
-          </div>
+          <ul style="list-style:none; padding:0; color:#aaa; margin-bottom:30px; line-height:2;">
+            <li><i class="fa-solid fa-check" style="color:var(--witch-green)"></i> <b>Revenue Share</b> for Stakers</li>
+            <li><i class="fa-solid fa-check" style="color:var(--witch-green)"></i> <b>Zero Trading Fees</b> for Holders</li>
+          </ul>
+          <button class="btn-spell">READ WHITEPAPER</button>
         </div>
 
-        <div class="card">
-          <video class="heroVideo" id="heroVideo" autoplay loop muted playsinline preload="metadata">
-            <source src="assets/wizard-ape.mp4" type="video/mp4" />
-          </video>
-          <div class="staffGlow"></div>
-          <div class="cardFooter">
-            <div>
-              <div class="lbl">FYREX APE</div>
-              <div style="opacity:.82; letter-spacing:.12em; text-transform:uppercase; font-size:12px;">
-                portal-ready • fast loop
-              </div>
-            </div>
-            <div class="glowDot" aria-hidden="true"></div>
+        <div class="pillars-grid">
+           <div class="pillar">
+             <div class="pillar-icon" style="color:var(--neon-purple); border-color:var(--neon-purple);"><i class="fa-solid fa-robot"></i></div>
+             <h4 style="font-family:var(--font-title); color:#fff; margin:0;">Sniper Bot</h4>
+             <p style="font-size:13px; color:#888; margin-top:10px;">Fastest sniper on Solana. Free for holders.</p>
+           </div>
+           <div class="pillar">
+             <div class="pillar-icon" style="color:var(--gold); border-color:var(--gold);"><i class="fa-solid fa-users"></i></div>
+             <h4 style="font-family:var(--font-title); color:#fff; margin:0;">Dark DAO</h4>
+             <p style="font-size:13px; color:#888; margin-top:10px;">Governance power. Vote on treasury.</p>
+           </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="path">
+      <div class="content-wrapper">
+        <h2>The <span style="color:var(--blood-red)">Path</span></h2>
+        <div class="pillars-grid">
+          <div class="pillar">
+             <h3 style="color:#fff; font-family:var(--font-title);">Phase I</h3>
+             <div style="color:var(--neon-purple); font-size:12px; font-weight:bold; margin-bottom:15px;">AWAKENING</div>
+             <p style="color:#aaa; font-size:13px;">Community Launch. Whitelist Tasks via @fyrexprime.</p>
+          </div>
+          <div class="pillar" style="border-color:var(--witch-green);">
+             <h3 style="color:#fff; font-family:var(--font-title);">Phase II</h3>
+             <div style="color:var(--witch-green); font-size:12px; font-weight:bold; margin-bottom:15px;">THE SUMMONING</div>
+             <p style="color:#aaa; font-size:13px;">Official Mint (2,222). Rarity Reveal. Staking Live.</p>
+          </div>
+          <div class="pillar" style="border-color:var(--gold);">
+             <h3 style="color:#fff; font-family:var(--font-title);">Phase III</h3>
+             <div style="color:var(--gold); font-size:12px; font-weight:bold; margin-bottom:15px;">ASCENSION</div>
+             <p style="color:#aaa; font-size:13px;">PerpDEX Beta. Revenue Share. Expansion.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- NFT SAMPLES -->
-    <section id="nfts">
-      <div class="wrap">
-        <div class="sectionTitle">NFT <span>Samples</span></div>
-        <p class="lead" style="max-width:74ch;">
-          Put your real images as <b>assets/nft-1.png</b>, <b>assets/nft-2.png</b>, <b>assets/nft-3.png</b>.
-          If missing, placeholders will show.
-        </p>
-
-        <div class="nftStrip">
-          <div class="nftCard">
-            <img class="nftImg" src="assets/nft-1.png" alt="" onerror="this.remove(); this.parentElement.insertAdjacentHTML('afterbegin','<div class=&quot;nftImg&quot; style=&quot;display:grid;place-items:center;font-family:var(--font-title);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.85);&quot;>NFT #001</div>')">
-            <div class="nftMeta">
-              <div class="nftName">FyreX Ape #001</div>
-              <div class="pillRow"><div class="pill">GENESIS</div><div class="pill">WL</div><div class="pill">BOOST</div></div>
-            </div>
-          </div>
-
-          <div class="nftCard">
-            <img class="nftImg" src="assets/nft-2.png" alt="" onerror="this.remove(); this.parentElement.insertAdjacentHTML('afterbegin','<div class=&quot;nftImg&quot; style=&quot;display:grid;place-items:center;font-family:var(--font-title);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.85);&quot;>NFT #222</div>')">
-            <div class="nftMeta">
-              <div class="nftName">FyreX Ape #222</div>
-              <div class="pillRow"><div class="pill">PASS</div><div class="pill">EARLY</div><div class="pill">PERKS</div></div>
-            </div>
-          </div>
-
-          <div class="nftCard">
-            <img class="nftImg" src="assets/nft-3.png" alt="" onerror="this.remove(); this.parentElement.insertAdjacentHTML('afterbegin','<div class=&quot;nftImg&quot; style=&quot;display:grid;place-items:center;font-family:var(--font-title);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.85);&quot;>NFT #777</div>')">
-            <div class="nftMeta">
-              <div class="nftName">FyreX Ape #777</div>
-              <div class="pillRow"><div class="pill">RARE</div><div class="pill">DROP</div><div class="pill">MULTI</div></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="flipGrid">
-          <div class="flipCard">
-            <div class="flipFace"><div class="flipWord">MINT <span class="emoji">🔥</span></div></div>
-            <div class="flipFace flipBack"><div class="flipWord">GATE <span class="emoji">🗝️</span></div></div>
-          </div>
-          <div class="flipCard">
-            <div class="flipFace"><div class="flipWord">UTILITY <span class="emoji">⚡</span></div></div>
-            <div class="flipFace flipBack"><div class="flipWord">BOOST <span class="emoji">🧪</span></div></div>
-          </div>
-          <div class="flipCard">
-            <div class="flipFace"><div class="flipWord">PORTAL <span class="emoji">🌀</span></div></div>
-            <div class="flipFace flipBack"><div class="flipWord">LORE <span class="emoji">📜</span></div></div>
-          </div>
-        </div>
-
-        <div class="ctaRow" style="margin-top:18px;">
-          <button class="cta primary" data-jump="#utility">UTILITY</button>
-          <button class="cta" data-jump="#roadmap">ROADMAP</button>
+    <section id="oracle">
+      <div class="content-wrapper">
+        <div class="glass-panel" style="max-width:800px;">
+          <h2>The <span style="color:var(--neon-purple)">Oracle</span></h2>
+          <p style="color:#aaa; margin-bottom:30px;">Follow @fyrexprime for alpha.</p>
+          <a href="https://x.com/fyrexprime" target="_blank" class="btn-spell" style="display:block; text-align:center; text-decoration:none; margin-bottom:15px;">FOLLOW ON X</a>
+          <a href="https://t.me/fyrexprime" target="_blank" class="btn-spell" style="display:block; text-align:center; text-decoration:none; border-color:#229ED9; color:#229ED9;">JOIN TELEGRAM</a>
         </div>
       </div>
     </section>
 
-    <!-- UTILITY -->
-    <section id="utility">
-      <div class="wrap">
-        <div class="sectionTitle">Core <span>Utility</span></div>
-        <p class="lead" style="max-width:74ch;">
-          Clean perks. High signal. No filler.
-        </p>
-        <div class="grid3">
-          <div class="box">
-            <h4>EARLY GATE</h4>
-            <ul><li>Whitelist priority</li><li>Mint access roles</li><li>Founder-style early entry</li></ul>
-          </div>
-          <div class="box">
-            <h4>XP & LEADERBOARD</h4>
-            <ul><li>House Points quests</li><li>Rank rewards</li><li>Seasonal resets</li></ul>
-          </div>
-          <div class="box">
-            <h4>DROPS & MULTIPLIERS</h4>
-            <ul><li>Airdrop weighting</li><li>Boost mechanics</li><li>Partner gates</li></ul>
-          </div>
-        </div>
-        <div class="ctaRow" style="margin-top:18px;">
-          <button class="cta" data-jump="#social">SOCIALS</button>
-          <button class="cta primary" data-jump="#roadmap">ROADMAP GATES</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ROADMAP -->
-    <section id="roadmap">
-      <div class="wrap">
-        <div class="sectionTitle">Roadmap <span>Gates</span></div>
-        <p class="lead" style="max-width:74ch;">
-          Each phase is a gate. Fast, readable, clean.
-        </p>
-        <div class="grid3">
-          <div class="box">
-            <h4>PHASE I — THE ACADEMY</h4>
-            <ul><li>Portal site final</li><li>Socials + quest board</li><li>NFT preview reveal</li></ul>
-          </div>
-          <div class="box">
-            <h4>PHASE II — MINT GATE</h4>
-            <ul><li>Mint conditions</li><li>House Points engine</li><li>Whitelist roles</li></ul>
-          </div>
-          <div class="box">
-            <h4>PHASE III — EXPANSION</h4>
-            <ul><li>Partner announcements</li><li>PerpDEX gate integration</li><li>Volume progression</li></ul>
-          </div>
-        </div>
-        <div class="ctaRow" style="margin-top:18px;">
-          <button class="cta" data-jump="#nfts">BACK TO NFTS</button>
-          <button class="cta primary" data-jump="#social">OPEN SOCIALS</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- SOCIAL -->
-    <section id="social">
-      <div class="wrap">
-        <div class="sectionTitle">Social <span>Links</span></div>
-        <p class="lead" style="max-width:74ch;">
-          Handles are locked: <b>@fyrexprime</b>.
-        </p>
-        <div class="grid3">
-          <div class="box">
-            <h4>X / TWITTER</h4>
-            <ul><li>@fyrexprime</li><li>Announcements • WL updates</li></ul>
-            <div class="ctaRow" style="margin-top:10px;">
-              <a class="cta primary" href="https://x.com/fyrexprime" target="_blank" rel="noopener">OPEN X</a>
-            </div>
-          </div>
-          <div class="box">
-            <h4>TELEGRAM</h4>
-            <ul><li>@fyrexprime</li><li>Community • quests • pings</li></ul>
-            <div class="ctaRow" style="margin-top:10px;">
-              <a class="cta primary" href="https://t.me/fyrexprime" target="_blank" rel="noopener">OPEN TELEGRAM</a>
-            </div>
-          </div>
-          <div class="box">
-            <h4>DISCORD</h4>
-            <ul><li>fyrexprime</li><li>Roles • events • leaderboard</li></ul>
-            <div class="ctaRow" style="margin-top:10px;">
-              <a class="cta primary" href="https://discord.com/" target="_blank" rel="noopener">OPEN DISCORD</a>
-            </div>
-          </div>
-        </div>
-        <div class="ctaRow" style="margin-top:18px;">
-          <button class="cta" id="openMenuBtn2">OPEN PORTAL MENU</button>
-          <button class="cta primary" data-jump="#hero">BACK TO TOP</button>
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer>
-    <div style="opacity:.9; letter-spacing:.12em; text-transform:uppercase; font-family:var(--font-title);">
-      FYREXPRIME • BUILT FOR THE ACADEMY
-    </div>
-    <div style="margin-top:10px;">
-      <a href="https://x.com/fyrexprime" target="_blank" rel="noopener">X</a>
-      <a href="https://t.me/fyrexprime" target="_blank" rel="noopener">TELEGRAM</a>
-      <a href="https://discord.com/" target="_blank" rel="noopener">DISCORD</a>
-    </div>
-    <div style="margin-top:12px; opacity:.7;">
-      © 2025 FYREXPRIME — 2D Toon Portal Website
-    </div>
+    <a href="https://x.com/fyrexprime" target="_blank" style="text-decoration:none;"><i class="fa-brands fa-x-twitter"></i></a>
+    <a href="https://t.me/fyrexprime" target="_blank" style="text-decoration:none;"><i class="fa-brands fa-telegram"></i></a>
   </footer>
 
+  <button class="mute-btn" id="muteBtn" onclick="toggleAudio()">
+    <i class="fa-solid fa-volume-xmark" id="muteIcon"></i>
+  </button>
+
   <script>
-    const $ = (q)=>document.querySelector(q);
-    const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    /* --- 1. ROBUST AUDIO ENGINE (AUTO-UNLOCK) --- */
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = new AudioContext();
+    let isMuted = true;
+    let ambienceNode = null;
 
-    /* ---------- ASSET WARMUP (NO CRASH) ---------- */
-    const loader=$("#loader"), loaderFill=$("#loaderFill");
-    const criticalImages=[
-      "assets/rune-glyphs.png",
-      "assets/bg-sky.png",
-      "assets/bg-castle.png",
-      "assets/fog-back.png",
-      "assets/fog-mid.png",
-      "assets/fog-front.png",
-      "assets/foreground-apes.png",
-      "assets/portal-ring.png",
-      "assets/portal-inner-glow.png",
-      "assets/portal-flash.png",
-      "assets/magic-sparks.png"
-    ];
+    // Kilit Açıcı: Ekrana her tıklandığında motoru kontrol et ve devam ettir
+    document.addEventListener('click', () => {
+       if (audioCtx.state === 'suspended') {
+         audioCtx.resume();
+       }
+    }, { once: false }); // Sürekli kontrol et, mobilde bazen ilk tık yetmez
 
-    function preloadImage(src){
-      return new Promise((resolve)=>{
-        const img=new Image();
-        img.onload=()=>resolve(true);
-        img.onerror=()=>resolve(false);
-        img.src=src;
-      });
-    }
-
-    (async()=>{
-      let done=0;
-      for(const src of criticalImages){
-        await preloadImage(src);
-        done++;
-        if(loaderFill) loaderFill.style.width = Math.round((done/criticalImages.length)*100) + "%";
+    // Rüzgar Sesi Oluşturucu
+    function createAmbience() {
+      const bufferSize = 2 * audioCtx.sampleRate;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        output[i] = (lastOut + (0.02 * white)) / 1.02;
+        lastOut = output[i];
+        output[i] *= 3.5;
       }
-      document.body.classList.add("ready");
-      setTimeout(()=> loader?.classList.add("hide"), 90);
-      const hv=$("#heroVideo");
-      hv?.play?.().catch(()=>{});
-    })();
+      var lastOut = 0;
 
-    /* ---------- PARALLAX (FAST) ---------- */
-    const layers = {
-      sky: $(".sky"),
-      castle: $(".castle"),
-      fogBack: $(".fog-back"),
-      fogMid: $(".fog-mid"),
-      fogFront: $(".fog-front"),
-      apes: $(".apes"),
-    };
+      ambienceNode = audioCtx.createBufferSource();
+      ambienceNode.buffer = noiseBuffer;
+      ambienceNode.loop = true;
+      const gainNode = audioCtx.createGain();
+      gainNode.gain.value = 0.15; // Ses seviyesi biraz daha yüksek
+      
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 400;
 
-    let mx=0, my=0;
-    window.addEventListener("mousemove",(e)=>{
-      mx = (e.clientX / innerWidth - 0.5);
-      my = (e.clientY / innerHeight - 0.5);
-    }, {passive:true});
-
-    function parallaxTick(){
-      const t = window.scrollY || 0;
-      const sc = Math.min(t/1000, 1);
-      const px = mx * 18;
-      const py = my * 10;
-
-      layers.sky.style.transform      = `translate3d(${px*0.14}px, ${py*0.10 + sc* -8}px, 0)`;
-      layers.castle.style.transform   = `translate3d(${px*0.24}px, ${py*0.18 + sc* -22}px, 0)`;
-      layers.fogBack.style.transform  = `translate3d(${px*0.34}px, ${py*0.22 + sc* -12}px, 0)`;
-      layers.fogMid.style.transform   = `translate3d(${px*0.52}px, ${py*0.30 + sc* -8}px, 0)`;
-      layers.fogFront.style.transform = `translate3d(${px*0.78}px, ${py*0.40 + sc*  0}px, 0)`;
-      layers.apes.style.transform     = `translate3d(${px*1.02}px, ${py*0.55 + sc*  6}px, 0)`;
-
-      requestAnimationFrame(parallaxTick);
+      ambienceNode.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      ambienceNode.start();
     }
-    requestAnimationFrame(parallaxTick);
 
-    /* ---------- PORTAL FX (FAST + STAYS ON SCREEN) ---------- */
-    const portal = $("#portal");
-    const portalCenter = $("#portalCenter");
-    let portalTimer=null;
+    // Büyü Sesi
+    function playMagicSound() {
+      if(isMuted) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
 
-    const PORTAL_ON_MS = 560;       // stays longer
-    const PORTAL_COOLDOWN_MS = 260; // more frequent feel (still safe)
-    let lastPortalAt = 0;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
 
-    function portalBurst(x = innerWidth*0.5, y = innerHeight*0.55){
-      if(prefersReduced) return;
-      if(!document.body.classList.contains("ready")) return;
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.3);
+    }
 
-      const now = performance.now();
-      if(now - lastPortalAt < PORTAL_COOLDOWN_MS) return;
-      lastPortalAt = now;
+    function toggleAudio() {
+      isMuted = !isMuted;
+      const icon = document.getElementById('muteIcon');
+      const btn = document.getElementById('muteBtn');
 
-      portalCenter.style.left = x + "px";
-      portalCenter.style.top  = y + "px";
-      portalCenter.style.transform = "translate(-50%,-50%)";
+      if (!isMuted) {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        if(!ambienceNode) createAmbience();
+        icon.className = 'fa-solid fa-volume-high';
+        btn.style.animation = 'none'; // Yanıp sönmeyi durdur
+        btn.style.borderColor = '#fff';
+      } else {
+        if(audioCtx) audioCtx.suspend();
+        icon.className = 'fa-solid fa-volume-xmark';
+      }
+    }
 
-      // restart animation reliably
-      portal.classList.remove("show");
+    /* --- 2. TELEPORT SYSTEM --- */
+    function teleport(targetId) {
+      playMagicSound();
+
+      // Nav Update
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-link'));
+      // İlgili butonu aktif yapma mantığı eklenebilir
+
+      // Portal FX
+      const portal = document.getElementById('portalOverlay');
+      portal.classList.remove('active');
       void portal.offsetWidth;
-      portal.classList.add("show");
+      portal.classList.add('active');
 
-      clearTimeout(portalTimer);
-      portalTimer = setTimeout(()=> portal.classList.remove("show"), PORTAL_ON_MS);
+      // Section Switch
+      const current = document.querySelector('.active-section');
+      if(current) current.classList.remove('active-section');
+
+      setTimeout(() => {
+        document.getElementById(targetId).classList.add('active-section');
+        setTimeout(() => portal.classList.remove('active'), 800);
+      }, 500);
     }
 
-    /* Section enter burst (earlier trigger so it feels instant) */
-    let lastSection = "";
-    const sections = document.querySelectorAll("section");
-    const io = new IntersectionObserver((entries)=>{
-      for(const e of entries){
-        if(e.isIntersecting && e.intersectionRatio > 0.35){
-          const id = e.target.id || "";
-          if(id && id !== lastSection){
-            lastSection = id;
-            portalBurst(innerWidth*0.5, innerHeight*0.55);
-          }
-        }
-      }
-    }, {threshold:[0.35,0.55,0.75]});
-    sections.forEach(s => io.observe(s));
-
-    /* ---------- CLICK SPARKS ---------- */
-    function sparkAt(x,y){
-      if(prefersReduced) return;
-      const img = document.createElement("img");
-      img.src = "assets/magic-sparks.png";
-      img.className = "spark pop";
-      img.style.left = x + "px";
-      img.style.top  = y + "px";
-      document.body.appendChild(img);
-      setTimeout(()=> img.remove(), 320);
-    }
-    document.addEventListener("click",(e)=> sparkAt(e.clientX, e.clientY), {passive:true});
-
-    /* ---------- WAND DOT ---------- */
-    const wandDot = $("#wandDot");
-    let last = 0;
-    window.addEventListener("mousemove",(e)=>{
-      if(prefersReduced) return;
-      const now = performance.now();
-      if(now - last < 45) return;
-      last = now;
-      wandDot.style.opacity = "0.85";
-      wandDot.style.left = e.clientX + "px";
-      wandDot.style.top  = e.clientY + "px";
-      wandDot.animate([
-        { transform:"translate(-50%,-50%) scale(0.85)", opacity:0.9 },
-        { transform:"translate(-50%,-50%) scale(1.6)", opacity:0 }
-      ], {duration: 260, easing:"linear"});
-    }, {passive:true});
-
-    /* ---------- DOOR MENU ---------- */
-    const doorMenu = $("#doorMenu");
-    const knockBtn = $("#knockBtn");
-    const knockHotspot = $("#knockHotspot");
-    const doorBackdrop = $("#doorBackdrop");
-    const closeDoor = $("#closeDoor");
-
-    function openDoor(){
-      doorMenu.classList.add("open");
-      doorMenu.setAttribute("aria-hidden","false");
-      // ensure rune shows immediately every time
-      const rune = document.querySelector(".runeOverlayImg");
-      if(rune){
-        rune.style.animation = "none";
-        void rune.offsetHeight;
-        rune.style.animation = "";
-      }
-    }
-    function closeDoorMenu(){
-      doorMenu.classList.remove("open");
-      doorMenu.setAttribute("aria-hidden","true");
+    /* --- 3. MINT LOGIC --- */
+    let mintAmount = 1;
+    function adjustMint(val) { mintAmount += val; if(mintAmount < 1) mintAmount = 1; document.getElementById('mintCount').innerText = mintAmount; }
+    function triggerMint() {
+      playMagicSound();
+      const status = document.getElementById('mintStatus');
+      status.innerText = "Interacting with Contract...";
+      status.style.color = "var(--witch-green)";
+      setTimeout(() => { status.innerText = "Check Phantom..."; }, 1500);
+      setTimeout(() => { status.innerText = "Success."; status.style.color = "#fff"; }, 3000);
     }
 
-    knockHotspot.addEventListener("click",(e)=>{
-      e.stopPropagation();
-      portalBurst(e.clientX, e.clientY);
-      setTimeout(openDoor, 40);
-    });
-    knockBtn.addEventListener("click",(e)=>{
-      if(e.target === knockHotspot) return;
-      portalBurst(innerWidth*0.5, innerHeight*0.55);
-      setTimeout(openDoor, 40);
-    });
-    doorBackdrop.addEventListener("click", closeDoorMenu);
-    closeDoor.addEventListener("click", closeDoorMenu);
-
-    document.querySelectorAll(".menuItem").forEach(item=>{
-      item.addEventListener("click", ()=>{
-        const t = item.getAttribute("data-target");
-        closeDoorMenu();
-        setTimeout(()=> smoothJump(t), 70);
+    /* --- 4. PARALLAX --- */
+    const layers = document.querySelectorAll('.layer');
+    window.addEventListener('mousemove', e => {
+      const x = (e.clientX / window.innerWidth - 0.5);
+      const y = (e.clientY / window.innerHeight - 0.5);
+      layers.forEach(l => {
+        const d = parseFloat(l.getAttribute('data-depth')) || 0;
+        if(d) l.style.transform = `translate3d(${x*30*d}px, ${y*15*d}px, 0)`;
       });
-    });
-
-    function smoothJump(sel){
-      const el = document.querySelector(sel);
-      if(!el) return;
-      portalBurst(innerWidth*0.5, innerHeight*0.55);
-      el.scrollIntoView({behavior:"smooth", block:"start"});
-    }
-    document.querySelectorAll("[data-jump]").forEach(b=>{
-      b.addEventListener("click", ()=> smoothJump(b.getAttribute("data-jump")));
-    });
-
-    /* Buttons */
-    $("#whitepaperBtn").addEventListener("click",(e)=>{
-      portalBurst(e.clientX, e.clientY);
-      setTimeout(()=>alert("Add your whitepaper link here."), 90);
-    });
-
-    $("#castSpellBtn").addEventListener("click",()=>{
-      portalBurst(innerWidth*0.5, innerHeight*0.55);
-      sparkAt(innerWidth*0.5, innerHeight*0.55);
-    });
-
-    $("#openMenuBtn").addEventListener("click",(e)=>{
-      portalBurst(e.clientX, e.clientY);
-      setTimeout(openDoor, 40);
-    });
-
-    $("#openMenuBtn2").addEventListener("click",(e)=>{
-      portalBurst(e.clientX, e.clientY);
-      setTimeout(openDoor, 40);
     });
   </script>
 </body>
