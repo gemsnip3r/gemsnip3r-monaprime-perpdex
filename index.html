@@ -16,12 +16,13 @@
       --witch-green: #00ff9d;
       --gold: #FFD700;
       --glass: rgba(5, 2, 10, 0.75); 
+      --glass-mobile: rgba(2, 1, 5, 0.95);
       --glass-border: rgba(176, 38, 255, 0.5);
       --font-title: "Cinzel", serif;
       --font-body: "Outfit", sans-serif;
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
     html, body {
       margin: 0; padding: 0; width: 100%; height: 100%;
@@ -61,8 +62,9 @@
       padding: 15px 40px; display: flex; justify-content: space-between; align-items: center;
       background: linear-gradient(to bottom, rgba(0,0,0,0.95), transparent);
     }
-    .brand { font-family: var(--font-title); font-size: 24px; color: #fff; text-shadow: 0 0 15px var(--neon-purple); cursor: pointer; font-weight: 700; }
+    .brand { font-family: var(--font-title); font-size: 24px; color: #fff; text-shadow: 0 0 15px var(--neon-purple); cursor: pointer; font-weight: 700; z-index: 102; position: relative; }
     .brand span { color: var(--witch-green); font-size: 0.8em; }
+    
     .nav-items { display: flex; gap: 20px; align-items: center; }
     .nav-btn {
       background: none; border: none; color: #aaa; font-family: var(--font-title); font-size: 13px;
@@ -70,6 +72,36 @@
     }
     .nav-btn:hover { color: var(--witch-green); text-shadow: 0 0 10px var(--witch-green); }
     .discord-btn { color: #fff; background: #5865F2; padding: 8px 20px; border-radius: 4px; text-decoration: none; font-family: var(--font-body); font-weight: 600; font-size: 12px; }
+
+    /* HAMBURGER (MOBILE ONLY) */
+    .hamburger { display: none; font-size: 24px; color: var(--witch-green); background: none; border: none; cursor: pointer; z-index: 102; position: relative; }
+    
+    /* MOBILE MENU OVERLAY */
+    .mobile-menu {
+      position: fixed; inset: 0; background: var(--glass-mobile); z-index: 101;
+      backdrop-filter: blur(20px); display: flex; flex-direction: column; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: 0.4s ease;
+    }
+    .mobile-menu.open { opacity: 1; pointer-events: auto; }
+    .mobile-link {
+      font-family: var(--font-title); font-size: 28px; color: #fff; margin: 15px 0;
+      text-decoration: none; text-transform: uppercase;
+      opacity: 0; transform: translateY(20px); transition: 0.4s;
+    }
+    .mobile-menu.open .mobile-link { opacity: 1; transform: translateY(0); }
+    .mobile-menu.open .mobile-link:nth-child(1) { transition-delay: 0.1s; }
+    .mobile-menu.open .mobile-link:nth-child(2) { transition-delay: 0.2s; }
+    .mobile-menu.open .mobile-link:nth-child(3) { transition-delay: 0.3s; }
+    .mobile-menu.open .mobile-link:nth-child(4) { transition-delay: 0.4s; }
+    .mobile-menu.open .mobile-link:nth-child(5) { transition-delay: 0.5s; }
+
+    /* RESPONSIVE NAV CSS */
+    @media (max-width: 900px) {
+      .nav-items { display: none; }
+      .hamburger { display: block; }
+      nav { padding: 15px 20px; }
+      .brand { font-size: 20px; }
+    }
 
     .ticker-wrap {
       position: fixed; top: 70px; left: 0; width: 100%; overflow: hidden; height: 30px;
@@ -85,10 +117,18 @@
     main { position: relative; width: 100%; height: 100%; z-index: 10; display: flex; align-items: center; justify-content: center; }
     section {
       position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transform: scale(0.95); transition: 0.5s ease; padding: 80px 20px;
+      opacity: 0; pointer-events: none; transform: scale(0.95); transition: 0.5s ease; padding: 100px 20px 80px;
     }
     section.active-section { opacity: 1; pointer-events: auto; transform: scale(1); }
-    .content-wrapper { max-height: 80vh; overflow-y: auto; width: 100%; max-width: 1200px; padding: 20px; display: flex; flex-direction: column; align-items: center; scrollbar-width: none; }
+    
+    /* MOBILE SCROLL FIX */
+    .content-wrapper { 
+      max-height: 80vh; overflow-y: auto; width: 100%; max-width: 1200px; padding: 10px; 
+      display: flex; flex-direction: column; align-items: center; 
+      /* Mobilde scroll barı gizle ama kaydırmaya izin ver */
+      scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch;
+    }
+    .content-wrapper::-webkit-scrollbar { display: none; }
 
     /* --- ARKA PLAN --- */
     .stage-overlay { position: fixed; inset: 0; z-index: 5; pointer-events: none; background: radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%); }
@@ -103,7 +143,7 @@
 
     /* --- UI ELEMENTS --- */
     h1 { 
-      font-family: var(--font-title); font-size: clamp(50px, 10vw, 120px); margin: 0; line-height: 0.9; 
+      font-family: var(--font-title); font-size: clamp(40px, 12vw, 120px); margin: 0; line-height: 0.9; 
       color: #fff; text-shadow: 0 0 40px rgba(176, 38, 255, 0.6); text-align: center;
       animation: glitchText 3s infinite;
     }
@@ -113,67 +153,60 @@
       4% { text-shadow: 0 0 40px rgba(176,38,255,0.6); transform: translate(0); }
     }
 
-    h2 { font-family: var(--font-title); font-size: 36px; color: #fff; margin-bottom: 30px; text-align: center; text-shadow: 0 0 20px #000; }
+    h2 { font-family: var(--font-title); font-size: clamp(28px, 6vw, 36px); color: #fff; margin-bottom: 20px; text-align: center; text-shadow: 0 0 20px #000; }
     h2 span { color: var(--witch-green); }
 
-    .glass-panel { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 40px; width: 100%; backdrop-filter: blur(10px); box-shadow: 0 20px 60px rgba(0,0,0,0.9); }
+    .glass-panel { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 30px; width: 100%; backdrop-filter: blur(10px); box-shadow: 0 20px 60px rgba(0,0,0,0.9); }
     .tilt-card { transition: transform 0.1s; transform-style: preserve-3d; perspective: 1000px; }
 
-    .btn-spell { padding: 14px 32px; background: rgba(36, 0, 70, 0.8); border: 1px solid var(--neon-purple); color: var(--neon-purple); font-family: var(--font-title); font-weight: 700; letter-spacing: 0.1em; cursor: pointer; transition: 0.3s; }
+    .btn-spell { padding: 14px 32px; background: rgba(36, 0, 70, 0.8); border: 1px solid var(--neon-purple); color: var(--neon-purple); font-family: var(--font-title); font-weight: 700; letter-spacing: 0.1em; cursor: pointer; transition: 0.3s; width: 100%; max-width: 300px; }
     .btn-spell:hover { background: var(--neon-purple); color: #000; box-shadow: 0 0 30px var(--neon-purple); }
 
-    /* COUNTDOWN (TBA) */
-    .countdown-box { display: flex; gap: 15px; justify-content: center; margin-top: 20px; }
-    .cd-unit { background: rgba(0,0,0,0.8); border: 1px solid var(--witch-green); padding: 10px 15px; border-radius: 8px; text-align: center; min-width: 70px; }
-    .cd-num { font-family: monospace; font-size: 24px; color: var(--witch-green); font-weight: bold; display: block; }
-    .cd-lbl { font-size: 10px; color: #aaa; letter-spacing: 0.1em; }
+    /* COUNTDOWN */
+    .countdown-box { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+    .cd-unit { background: rgba(0,0,0,0.8); border: 1px solid var(--witch-green); padding: 8px 12px; border-radius: 8px; text-align: center; min-width: 60px; }
+    .cd-num { font-family: monospace; font-size: 20px; color: var(--witch-green); font-weight: bold; display: block; }
+    .cd-lbl { font-size: 9px; color: #aaa; letter-spacing: 0.1em; }
 
     /* PERPDEX HERO */
     .perpdex-hero {
       background: linear-gradient(135deg, rgba(20, 241, 149, 0.1), rgba(0,0,0,0.95));
-      border: 2px solid var(--witch-green); border-radius: 20px; padding: 40px;
+      border: 2px solid var(--witch-green); border-radius: 20px; padding: 30px;
       text-align: center; position: relative; overflow: hidden;
       box-shadow: 0 0 50px rgba(0, 255, 157, 0.2); width: 100%; max-width: 900px;
     }
-    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 30px; width: 100%; }
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px; width: 100%; }
     .feature-box { background: rgba(10, 5, 20, 0.6); border: 1px solid rgba(0, 255, 157, 0.3); border-radius: 12px; padding: 20px; text-align: left; transition: 0.3s; }
-    .feature-box:hover { background: rgba(0, 255, 157, 0.1); border-color: var(--witch-green); transform: translateY(-5px); }
-    .feature-title { font-family: var(--font-title); font-size: 18px; color: #fff; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-    .feature-desc { font-size: 13px; color: #aaa; line-height: 1.5; }
-
+    
     /* ROADMAP */
-    .pillars-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; width: 100%; }
-    .pillar { background: rgba(10, 5, 20, 0.85); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 30px; text-align: left; transition: 0.3s; height: 100%; }
-    .pillar:hover { transform: translateY(-10px); border-color: var(--neon-purple); background: #000; }
-    .pillar h3 { margin: 0 0 15px 0; font-family: var(--font-title); font-size: 22px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
-    .pillar ul { padding-left: 20px; margin: 0; color: #ccc; line-height: 1.8; font-size: 14px; }
-
+    .pillars-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; width: 100%; }
+    .pillar { background: rgba(10, 5, 20, 0.85); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 20px; text-align: left; transition: 0.3s; height: 100%; }
+    
     /* ORACLE */
     .crystal-ball { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 20px; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), #000); box-shadow: 0 0 40px var(--neon-purple); cursor: pointer; transition: 0.3s; display: grid; place-items: center; font-size: 50px; }
-    .crystal-ball:hover { transform: scale(1.05); box-shadow: 0 0 60px var(--neon-purple); }
-    .tweet-box { background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; display: flex; gap: 15px; margin-bottom: 15px; }
-    .tweet-avi { width: 40px; height: 40px; border-radius: 50%; background: #333; }
+    .tweet-box { background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; display: flex; gap: 15px; margin-bottom: 15px; text-align: left; }
+    .tweet-avi { width: 40px; height: 40px; border-radius: 50%; background: #333; flex-shrink: 0; }
     .hacker-text { display: inline-block; min-width: 50px; }
 
     /* FOOTER */
-    footer { position: fixed; bottom: 0; width: 100%; z-index: 100; padding: 15px; text-align: center; pointer-events: auto; }
+    footer { position: fixed; bottom: 0; width: 100%; z-index: 100; padding: 10px; text-align: center; pointer-events: auto; }
     .social-bar {
       display: inline-flex; gap: 20px; background: rgba(0,0,0,0.8); 
-      padding: 10px 25px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.1);
+      padding: 8px 20px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.1);
       backdrop-filter: blur(5px);
     }
-    .social-link { color: #aaa; font-size: 20px; transition: 0.3s; }
-    .social-link:hover { color: var(--witch-green); transform: translateY(-3px); text-shadow: 0 0 15px var(--witch-green); }
+    .social-link { color: #aaa; font-size: 18px; transition: 0.3s; }
+    .social-link:hover { color: var(--witch-green); transform: translateY(-3px); }
 
-    .mute-btn { position: fixed; bottom: 20px; right: 20px; z-index: 200; pointer-events: auto; width: 40px; height: 40px; border-radius: 50%; background: #000; border: 1px solid var(--witch-green); color: var(--witch-green); display: grid; place-items: center; cursor: pointer; }
+    .mute-btn { position: fixed; bottom: 60px; right: 20px; z-index: 200; pointer-events: auto; width: 40px; height: 40px; border-radius: 50%; background: #000; border: 1px solid var(--witch-green); color: var(--witch-green); display: grid; place-items: center; cursor: pointer; }
   </style>
 </head>
 <body>
 
   <div id="startScreen">
-    <div style="font-family:var(--font-title); color:var(--witch-green); letter-spacing:0.3em; margin-bottom:20px;">SCHOOL OF SORCERY</div>
-    <button class="enter-btn" onclick="enterSite()">ENTER THE VOID</button>
-    <div style="margin-top:20px; font-size:12px; color:#666;">ENABLES AUDIO & VISUALS</div>
+    <div style="font-family:var(--font-title); color:var(--witch-green); letter-spacing:0.3em; margin-bottom:20px; text-align:center;">FYREX ACADEMY</div>
+    <button class="enter-btn" onclick="enterSite()">ENTER</button>
+    <div style="margin-top:20px; font-size:10px; color:#666;">ENABLES AUDIO & VISUALS</div>
   </div>
 
   <div class="stage">
@@ -193,16 +226,30 @@
     </div>
   </div>
 
+  <div class="mobile-menu" id="mobileMenu">
+    <button style="position:absolute; top:20px; right:20px; background:none; border:none; color:#fff; font-size:30px;" onclick="toggleMenu()">×</button>
+    <a class="mobile-link" onclick="handleMobileNav('home')">HOME</a>
+    <a class="mobile-link" onclick="handleMobileNav('summon')">SUMMON</a>
+    <a class="mobile-link" onclick="handleMobileNav('academy')">ACADEMY</a>
+    <a class="mobile-link" onclick="handleMobileNav('path')">PATH</a>
+    <a class="mobile-link" onclick="handleMobileNav('collab')">ALLIANCES</a>
+    <a class="mobile-link" onclick="handleMobileNav('oracle')">ORACLE</a>
+  </div>
+
   <nav>
     <div class="brand" onclick="teleport('home')">FYREX <span>PRIME</span></div>
+    
     <div class="nav-items">
       <button class="nav-btn" onclick="teleport('home')">HOME</button>
       <button class="nav-btn" onclick="teleport('summon')">SUMMON</button>
       <button class="nav-btn" onclick="teleport('academy')">ACADEMY</button>
       <button class="nav-btn" onclick="teleport('path')">THE PATH</button>
-      <button class="nav-btn" onclick="teleport('collab')">ALLIANCES</button> <button class="nav-btn" onclick="teleport('oracle')">ORACLE</button>
+      <button class="nav-btn" onclick="teleport('collab')">ALLIANCES</button>
+      <button class="nav-btn" onclick="teleport('oracle')">ORACLE</button>
       <a href="https://discord.gg/fyrexprime" target="_blank" class="discord-btn">DISCORD</a>
     </div>
+
+    <button class="hamburger" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
   </nav>
   
   <div class="ticker-wrap">
@@ -211,7 +258,6 @@
       <div class="ticker-item">MINT STATUS: <span>TBA</span></div>
       <div class="ticker-item">TOTAL STAKED: <span>---</span></div>
       <div class="ticker-item">PERPDEX VOL: <span>LOADING...</span></div>
-      <div class="ticker-item">FLOOR PRICE: <span>---</span></div>
       <div class="ticker-item">SOL: <span>$145.20</span></div>
       <div class="ticker-item">MINT STATUS: <span>TBA</span></div>
     </div>
@@ -249,9 +295,9 @@
           </div>
           <div style="font-size:18px; margin-bottom:20px; color:#fff;" id="mintStatus">Ready to Summon...</div>
           <div style="display:flex; justify-content:center; gap:20px; align-items:center; margin-bottom:20px;">
-             <button class="btn-spell" onclick="adjustMint(-1)" style="margin:0; padding:10px;">-</button>
+             <button class="btn-spell" onclick="adjustMint(-1)" style="margin:0; padding:10px; width:auto;">-</button>
              <span style="font-size:24px; font-family:var(--font-title);" id="mintCount">1</span>
-             <button class="btn-spell" onclick="adjustMint(1)" style="margin:0; padding:10px;">+</button>
+             <button class="btn-spell" onclick="adjustMint(1)" style="margin:0; padding:10px; width:auto;">+</button>
           </div>
           <button class="btn-spell" style="width:100%; background:var(--witch-green); color:#000;" onclick="triggerMint()">SUMMON (0.5 SOL)</button>
         </div>
@@ -262,20 +308,20 @@
       <div class="content-wrapper">
         <h2>FyreX <span style="color:var(--witch-green)">Academy</span></h2>
         <div class="perpdex-hero tilt-card">
-          <h3 class="hacker-text" data-value="PERPDEX UTILITY" style="font-family:var(--font-title); font-size:32px; color:#fff; margin:0 0 20px 0;">PERPDEX UTILITY</h3>
+          <h3 class="hacker-text" data-value="PERPDEX UTILITY" style="font-family:var(--font-title); font-size:clamp(20px, 5vw, 32px); color:#fff; margin:0 0 20px 0;">PERPDEX UTILITY</h3>
           <p style="font-size:16px; color:#ddd; margin-bottom:30px; line-height:1.6;">Decentralized Perpetual Exchange on Solana.</p>
           <div class="feature-grid">
             <div class="feature-box">
-                <div class="feature-title"><i class="fa-solid fa-coins" style="color:var(--gold);"></i> Staking Revenue</div>
-                <div class="feature-desc">Earn passive $MANA by locking your Sorcerer NFT. 30% of Dex fees go to stakers.</div>
+                <div class="feature-title"><i class="fa-solid fa-coins" style="color:var(--gold);"></i> Staking</div>
+                <div class="feature-desc">Earn passive $MANA by locking your Sorcerer NFT. 30% revenue share.</div>
             </div>
             <div class="feature-box" style="border-color:rgba(176, 38, 255, 0.3);">
-                <div class="feature-title"><i class="fa-solid fa-robot" style="color:var(--neon-purple);"></i> Sniper Bot</div>
-                <div class="feature-desc">Instant access to the fastest Solana sniper tool. Frontrun the liquidity.</div>
+                <div class="feature-title"><i class="fa-solid fa-robot" style="color:var(--neon-purple);"></i> Sniper</div>
+                <div class="feature-desc">Instant access to the fastest Solana sniper tool. Frontrun liquidity.</div>
             </div>
              <div class="feature-box" style="border-color:rgba(255, 215, 0, 0.3);">
                 <div class="feature-title"><i class="fa-solid fa-shield-halved" style="color:var(--gold);"></i> Zero Fees</div>
-                <div class="feature-desc">Whitelisted holders trade on FyreX PerpDEX with 0% trading fees forever.</div>
+                <div class="feature-desc">Whitelisted holders trade with 0% fees forever.</div>
             </div>
           </div>
         </div>
@@ -304,8 +350,8 @@
 
     <section id="collab">
       <div class="content-wrapper">
-        <div class="glass-panel tilt-card" style="max-width:700px; text-align:center;">
-          <h2 class="hacker-text" data-value="STRATEGIC ALLIANCES">Strategic <span style="color:var(--gold)">Alliances</span></h2>
+        <div class="glass-panel tilt-card" style="max-width:600px; text-align:center;">
+          <h2 class="hacker-text" data-value="ALLIANCES">Strategic <span style="color:var(--gold)">Alliances</span></h2>
           <div style="font-size:60px; color:#fff; margin-bottom:20px;"><i class="fa-solid fa-handshake-simple"></i></div>
           <p style="color:#ddd; margin-bottom:30px; font-size:16px; line-height:1.6;">
             We are looking for powerful allies in the Solana ecosystem.<br>
@@ -320,7 +366,7 @@
 
     <section id="oracle">
       <div class="content-wrapper">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px; width:100%; max-width:900px;">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:30px; width:100%; max-width:900px;">
           <div class="glass-panel" style="text-align:center; padding:30px;">
             <h3>Crystal Ball</h3>
             <div class="crystal-ball" onclick="consultOracle()" id="crystalBall">🔮</div>
@@ -329,11 +375,11 @@
           <div>
             <h3 style="font-family:var(--font-title); color:#fff; margin-bottom:15px;">@fyrexprime</h3>
             <div class="tweet-box">
-              <div class="tweet-avi"></div>
+              <div class="tweet-avi"><img src="assets/nft-1.png" style="width:100%;" onerror="this.style.display='none'"></div>
               <div><div style="font-size:13px; font-weight:bold;">FyreX Prime <span style="color:#666;">@fyrexprime • 2h</span></div><div style="font-size:12px; color:#ccc; margin-top:5px;">The ritual approaches. 2,222 Sorcerers. Are you ready? ⚡ #Solana</div></div>
             </div>
             <div class="tweet-box">
-              <div class="tweet-avi"></div>
+              <div class="tweet-avi"><img src="assets/nft-1.png" style="width:100%;" onerror="this.style.display='none'"></div>
               <div><div style="font-size:13px; font-weight:bold;">FyreX Prime <span style="color:#666;">@fyrexprime • 6h</span></div><div style="font-size:12px; color:#ccc; margin-top:5px;">Whitelist spots are vanishing. Check the Discord for the latest quest. 📜</div></div>
             </div>
             <a href="https://x.com/fyrexprime" target="_blank" class="btn-spell" style="width:100%; display:block; text-align:center; text-decoration:none; padding:10px;">FOLLOW ON X</a>
@@ -367,13 +413,17 @@
       triggerHackerEffect(); 
       initParticles(); 
       initTilt();
-      // startCountdown(); 
     }
     
     function createAmbience() { const bufferSize = 2 * audioCtx.sampleRate; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.5; const noise = audioCtx.createBufferSource(); noise.buffer = buffer; noise.loop = true; const gain = audioCtx.createGain(); gain.gain.value = 0.1; const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 300; noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); noise.start(); }
     function playSound(freq) { if(isMuted) return; if(audioCtx.state === 'suspended') audioCtx.resume(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.frequency.setValueAtTime(freq, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(freq/2, audioCtx.currentTime + 0.3); gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.3); }
     function toggleMute() { isMuted = !isMuted; const icon = document.getElementById('muteIcon'); if(!isMuted) { if(audioCtx.state === 'suspended') audioCtx.resume(); icon.className = 'fa-solid fa-volume-high'; } else { if(audioCtx) audioCtx.suspend(); icon.className = 'fa-solid fa-volume-xmark'; } }
     
+    /* MOBILE MENU LOGIC */
+    const mobileMenu = document.getElementById('mobileMenu');
+    function toggleMenu() { mobileMenu.classList.toggle('open'); playSound(200); }
+    function handleMobileNav(targetId) { toggleMenu(); teleport(targetId); }
+
     function teleport(targetId) { 
       playSound(300); const portal = document.getElementById('portalOverlay'); portal.classList.remove('active'); void portal.offsetWidth; portal.classList.add('active'); 
       const current = document.querySelector('.active-section'); if(current) current.classList.remove('active-section'); 
